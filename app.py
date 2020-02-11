@@ -2,21 +2,22 @@ from flask import Flask, request
 from bson.objectid import ObjectId
 from connection  import  *
 import json
-from fatsecret import *
+from views import  food_search
+
 
 app = Flask(__name__)
 
+@app.route('/search', methods= ['POST'])
+def food_s():
+    x = json.loads(request.data)
+
+    return food_search(x['data'])
+    #else:
+     #   return 'This method is not acceptable'
 
 @app.route('/hello', methods= ['GET', 'POST'])
-def COLLECT_AVERAGE():
+def API():
     if request.method == 'GET':
-        consumer_key = 'f02034d0d7b24cb594f5c65f9fa525dd'
-        consumer_secret = 'f5fac6873b544b5191809b5ee7f9b6fc'
-        fs = Fatsecret(consumer_key, consumer_secret)
-        result = fs.foods_search("Samosa")
-        x = food.insert(result)
-        print(result)
-        return 'hello'
         # x = list(col.find({"_id": ObjectId("5e388991272e4c23e056d732")}))
         # oid = x[0]['_id']
         # user = col.update({"_id": ObjectId(oid)}, {
@@ -31,7 +32,7 @@ def COLLECT_AVERAGE():
         #     "PID": "1"
         # })
         # print(user)
-        # return 'hello'
+        return 'hello'
 
     if request.method == 'POST':
         data = json.loads(request.data)
