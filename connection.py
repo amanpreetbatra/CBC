@@ -4,4 +4,4 @@ mongo = pymongo.MongoClient('mongodb+srv://naman:naman1234@cluster0-t91dz.mongod
 
 db = pymongo.database.Database(mongo, 'cbc')
 col = pymongo.collection.Collection(db, 'cbcavg')
-
+food = pymongo.collection.Collection(db, 'cbcfood')
