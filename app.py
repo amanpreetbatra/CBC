@@ -15,7 +15,7 @@ def food_s():
     #else:
      #   return 'This method is not acceptable'
 
-@app.route('/hello', methods= ['GET', 'POST'])
+@app.route('/heartrate', methods= ['GET', 'POST'])
 def API():
     if request.method == 'GET':
         # x = list(col.find({"_id": ObjectId("5e388991272e4c23e056d732")}))

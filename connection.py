@@ -11,7 +11,8 @@ mongo = pymongo.MongoClient('mongodb+srv://naman:naman1234@cluster0-t91dz.mongod
 '''------------'''
 
 '''MongoDb Database and collections'''
-db = pymongo.database.Database(mongo, 'cbc')
-col = pymongo.collection.Collection(db, 'cbcavg')
-food = pymongo.collection.Collection(db, 'cbcfood')
+db = pymongo.database.Database(mongo, 'VITRADA')
+db1 = pymongo.database.Database(mongo, 'CALINDA')
+col = pymongo.collection.Collection(db, 'CBCavg')
+food = pymongo.collection.Collection(db1, 'CIfood')
 '''------------------'''
