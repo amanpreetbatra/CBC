@@ -11,7 +11,7 @@ app = Flask(__name__)
 def food_s():
     x = json.loads(request.data)
 
-    return food_search(x['data'])
+    return food_search(x['data'],x['page'])
     #else:
      #   return 'This method is not acceptable'
 

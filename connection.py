@@ -16,3 +16,4 @@ db1 = pymongo.database.Database(mongo, 'CALINDA')
 col = pymongo.collection.Collection(db, 'CBCavg')
 food = pymongo.collection.Collection(db1, 'CIfood')
 '''------------------'''
+err = pymongo.errors
