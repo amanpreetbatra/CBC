@@ -7,15 +7,38 @@ from views import  food_search
 
 app = Flask(__name__)
 
-@app.route('/search', methods= ['POST'])
+
+''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
+@app.route('/foodsearch', methods= ['POST'])
 def food_s():
     x = json.loads(request.data)
+    return food_search(x['data'], x['page'])
 
-    return food_search(x['data'],x['page'])
-    #else:
-     #   return 'This method is not acceptable'
 
-@app.route('/heartrate', methods= ['GET', 'POST'])
+@app.route('/op_hr', methods= ['POST'])
+def fetch_heart():
+    if request.method=='POST':
+        data = json.loads(request.data)
+        x = list(col.find({"EXERCISE": data["EXERCISE"],
+                           "GENDER": data["GENDER"],
+                           "LEVEL": data["LEVEL"],
+                           "REPS": data["REPS"],
+                           "AGE": data["AGE"],
+                           "lift WEIGHT": data["lift WEIGHT"]
+                           }))
+        oid = x[0]['_id']
+        if x[0]['flag'] == 1:
+            result = {"message": "Heartrate data found in database",
+                      "heartrate":x[0]["HEARTRATE"]}
+
+        else:
+            result = {"message": "Heartrate data not found in database"}
+        return json.dumps(result)
+
+
+
+
+@app.route('/in_hr', methods= [ 'POST'])
 def API():
     if request.method == 'GET':
         # x = list(col.find({"_id": ObjectId("5e388991272e4c23e056d732")}))
@@ -46,7 +69,7 @@ def API():
 
         '''object id varible'''
         oid = x[0]['_id']
-        if x[0]['HEARTRATE'] == "" or x[0]['HEARTRATE'] == "NULL":
+        if x[0]['flag'] == 0:
             user = col.update({"_id": ObjectId(oid)}, {
                 "EXERCISE": data["EXERCISE"],
                 "GENDER": data["GENDER"],
@@ -57,14 +80,13 @@ def API():
                 "HEARTRATE": data["HEARTRATE"],
                 "PID": x[0]["PID"]
                 })
-            print("DATABASE UPDATED ")
-            return "DATABASE UPDATED "
+            message = "DATABASE UPDATED "
+            return json.dumps(message)
 
         else:
-
-            print("NOT REQUIRED! ALREADY FILLED")
-            return 'NOT REQUIRED! ALREADY FILLED'
+            message = "NOT REQUIRED! ALREADY FILLED"
+            return json.dumps(message)
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0',port='80')
