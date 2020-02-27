@@ -53,10 +53,10 @@ def insert_hr():
             "AGE": data["AGE"],
             "lift WEIGHT": data["lift WEIGHT"]
             }))
-
+        print(x[0])
         '''object id varible'''
         oid = x[0]['_id']
-        if x[0]['FLAG'] == 0:
+        if int(x[0]['FLAG']) == 0:
             user = col.update({"_id": ObjectId(oid)}, {
                 "EXERCISE": data["EXERCISE"],
                 "GENDER": data["GENDER"],
@@ -64,13 +64,14 @@ def insert_hr():
                 "REPS":data["REPS"],
                 "AGE": data["AGE"],
                 "lift WEIGHT": data["lift WEIGHT"],
-                "HEARTRATE": data["HEARTRATE"]
+                "HEARTRATE": data["HEARTRATE"],
+                "FLAG" : "1"
                 })
-            message = "DATABASE UPDATED "
+            message ={"message": "DATABASE UPDATED "}
             return json.dumps(message)
 
         else:
-            message = "NOT REQUIRED! ALREADY FILLED"
+            message = { "message": "NOT REQUIRED! ALREADY FILLED" }
             return json.dumps(message)
 
 
