@@ -60,11 +60,13 @@ def fetch_heartrate(data):
                        "AGE": data["AGE"],
                        "lift WEIGHT": data["lift WEIGHT"]
                        }))
-    oid = x[0]['_id']
-    if x[0]['flag'] == 1:
-        result = {"message": "Heartrate data found in database",
-                  "flag": "1",
-                  "heartrate": x[0]["HEARTRATE"]}
+
+    print(x)
+    if len(x) != 0:
+        if x[0]['flag'] == 1 :
+            result = {"message": "Heartrate data found in database",
+                      "flag": "1",
+                      "heartrate": x[0]["HEARTRATE"]}
 
     else:
         result = {"message": "Heartrate data not found in database",
