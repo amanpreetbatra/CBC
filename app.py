@@ -2,7 +2,7 @@ from flask import Flask, request
 from bson.objectid import ObjectId
 from connection  import  *
 import json
-from views import  food_search
+import views as v
 
 
 app = Flask(__name__)
@@ -11,52 +11,39 @@ app = Flask(__name__)
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
 @app.route('/foodsearch', methods= ['POST'])
 def food_s():
-    x = json.loads(request.data)
-    return food_search(x['data'], x['page'])
+    data = json.loads(request.data)
+    return v.food_search(data['data'], data['page'])
 
 
+'''API TO GET NUTRITIONAL VALUES OF A PARTICULAR FOOD ID'''
+@app.route('/get_nut', methods= ['POST'])
+def food_g():
+    data = json.loads(request.data)
+    return v.nutri_facts(data['food_id'])
+
+
+'''API TO SEND HEARTRATE TO FRONTEND IF IT IS AVAILABLE IN BACKEND'''
 @app.route('/op_hr', methods= ['POST'])
 def fetch_heart():
-    if request.method=='POST':
-        data = json.loads(request.data)
-        x = list(col.find({"EXERCISE": data["EXERCISE"],
-                           "GENDER": data["GENDER"],
-                           "LEVEL": data["LEVEL"],
-                           "REPS": data["REPS"],
-                           "AGE": data["AGE"],
-                           "lift WEIGHT": data["lift WEIGHT"]
-                           }))
-        oid = x[0]['_id']
-        if x[0]['flag'] == 1:
-            result = {"message": "Heartrate data found in database",
-                      "heartrate":x[0]["HEARTRATE"]}
+    data = json.loads(request.data)
+    return v.fetch_heartrate(data)
 
-        else:
-            result = {"message": "Heartrate data not found in database"}
-        return json.dumps(result)
 
+@app.route('/customfoodins', methods= ['POST'])
+def custom_meal():
+    data = json.loads(request.data)
+    return v.store_mealplan(data)
+
+
+@app.route('/inp_insight', methods= ['POST'])
+def insights():
+    data = json.loads(request.data)
+    return v.store_insights(data)
 
 
 
 @app.route('/in_hr', methods= [ 'POST'])
-def API():
-    if request.method == 'GET':
-        # x = list(col.find({"_id": ObjectId("5e388991272e4c23e056d732")}))
-        # oid = x[0]['_id']
-        # user = col.update({"_id": ObjectId(oid)}, {
-        #
-        #     "EXERCISE": "PUSHUP",
-        #     "GENDER": "MALE",
-        #     "LEVEL": "BEGINNER",
-        #     "REPS": "LOW",
-        #     "AGE": "A",
-        #     "lift WEIGHT": "HEAVY",
-        #     "HEARTRATE": "NULL",
-        #     "PID": "1"
-        # })
-        # print(user)
-        return 'hello'
-
+def insert_hr():
     if request.method == 'POST':
         data = json.loads(request.data)
         x = list(col.find({"EXERCISE": data["EXERCISE"],

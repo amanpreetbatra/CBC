@@ -13,7 +13,12 @@ mongo = pymongo.MongoClient('mongodb+srv://naman:naman1234@cluster0-t91dz.mongod
 '''MongoDb Database and collections'''
 db = pymongo.database.Database(mongo, 'VITRADA')
 db1 = pymongo.database.Database(mongo, 'CALINDA')
-col = pymongo.collection.Collection(db, 'CBCavg')
+col = pymongo.collection.Collection(db, 'cbcavg')
 food = pymongo.collection.Collection(db1, 'CIfood')
+nutri = pymongo.collection.Collection(db1, 'CBnutri')
+custom_food =pymongo.collection.Collection(db1, 'CICustomfood')
+
+custom_food.create_index(
+    [("Product-name", pymongo.DESCENDING), ("Brand", pymongo.ASCENDING),("Brand-Type", pymongo.ASCENDING)], unique=True)
 '''------------------'''
 err = pymongo.errors
