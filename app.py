@@ -56,7 +56,7 @@ def insert_hr():
 
         '''object id varible'''
         oid = x[0]['_id']
-        if x[0]['flag'] == 0:
+        if x[0]['FLAG'] == 0:
             user = col.update({"_id": ObjectId(oid)}, {
                 "EXERCISE": data["EXERCISE"],
                 "GENDER": data["GENDER"],
@@ -64,8 +64,7 @@ def insert_hr():
                 "REPS":data["REPS"],
                 "AGE": data["AGE"],
                 "lift WEIGHT": data["lift WEIGHT"],
-                "HEARTRATE": data["HEARTRATE"],
-                "PID": x[0]["PID"]
+                "HEARTRATE": data["HEARTRATE"]
                 })
             message = "DATABASE UPDATED "
             return json.dumps(message)
