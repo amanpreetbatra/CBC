@@ -63,16 +63,22 @@ def fetch_heartrate(data):
 
     print(x)
     if len(x) != 0:
-        if x[0]['flag'] == 1 :
+        if x[0]['FLAG'] == 1 :
             result = {"message": "Heartrate data found in database",
                       "flag": "1",
                       "heartrate": x[0]["HEARTRATE"]}
 
-    else:
-        result = {"message": "Heartrate data not found in database",
+
+        else:
+            result = {"message": "Heartrate data not found in database",
                   "flag" : "0",
                   "heartrate" : ""}
+    else:
+        result = {"message": "Heartrate data not found in database",
+                  "flag": "0",
+                  "heartrate": ""}
     return json.dumps(result)
+
 
 
 def store_mealplan(data):
