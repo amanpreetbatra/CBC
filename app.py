@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from connection  import  *
 import json
 import views as v
+import sys
 
 
 app = Flask(__name__)
@@ -12,15 +13,26 @@ app = Flask(__name__)
 @app.route('/foodsearch', methods= ['POST'])
 def food_s():
     data = json.loads(request.data)
-    return v.food_search(data['data'], data['page'])
+    try:
+        return v.food_search(data['data'], data['page'])
+    except:
+        e = sys.exc_info()[0:2]
+        dat = {"message" : str(e) }
+
+        return json.dumps(dat)
 
 
 '''API TO GET NUTRITIONAL VALUES OF A PARTICULAR FOOD ID'''
 @app.route('/get_nut', methods= ['POST'])
 def food_g():
     data = json.loads(request.data)
-    return v.nutri_facts(data['food_id'])
+    try:
+        return v.nutri_facts(data['food_id'])
+    except:
+        e = sys.exc_info()[0:2]
+        dat = {"message": str(e)}
 
+        return json.dumps(dat)
 
 '''API TO SEND HEARTRATE TO FRONTEND IF IT IS AVAILABLE IN BACKEND'''
 @app.route('/op_hr', methods= ['POST'])

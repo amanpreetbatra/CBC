@@ -87,19 +87,27 @@ def store_mealplan(data):
                "Prod-name": data["Prod-name"],
                "Calories": data["Calories"],
                "Proteins": data["Proteins"],
-               "Fats": data["Fats"],
-               "Carbohydrates": data["Carbohydrates"],
-               "Fibers": data["Fibers"] }
+               "Fats":{ "Total-fat": data["Fats"]["Total-fat"],"Saturated-fat": data["Fats"]["Saturated-fat"],
+                         "Monounsaturated-fat": data["Fats"]["Monounsaturated-fat"],
+                         "Polyunsaturated-fat": data["Fats"]["Polyunsaturated-fat"]
+                        },
+               "Carbohydrates": {"Total-carbs" : data["Carbohydrates"]["Total-carbs"],
+                     "Sugar":data["Carbohydrates"]["Sugar"]},
+               "Fibers": data["Fibers"],
+               "Energy" : data["Energy"],
+               "Sodium": data["Sodium"],
+               "Cholesterol": data["Cholesterol"],
+               "Potassium": data["Potassium"]}
     print(insert)
     try:
         # insert into new collection
         custom_food.insert(insert)
-        x = "Successfully Inserted Data"
+        x = {"message":"Successfully Inserted Data"}
     except err.DuplicateKeyError:
         # skip document because it already exists in new collection
         print(err.DuplicateKeyError)
-        x = "Dublicate Entry"
-    return x
+        x = {"message":"Dublicate Entry"}
+    return json.dumps(x)
 
 def store_insights(data):
     return "hello"
