@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request,render_template
 from bson.objectid import ObjectId
 from connection  import  *
 import json
@@ -85,6 +85,30 @@ def insert_hr():
         else:
             message = { "message": "NOT REQUIRED! ALREADY FILLED" }
             return json.dumps(message)
+
+
+@app.route('/crm', methods= [ 'GET'])
+def crm():
+    data = list(v.show_mealplan())
+    return render_template("crm.html", data=data)
+
+@app.route('/getmealplan', methods= [ 'POST'])
+def crm_1():
+    data = json.loads(request.data)
+
+    response = list(v.get_mealplan(data["id"]))
+    del response[0]["_id"]
+    response = json.dumps(response)
+    return response
+
+@app.route('/storemealplan', methods= [ 'POST'])
+def storemealplan():
+    data = request.form.to_dict()
+
+    inp = v.custom_json(data)
+    print(inp)
+
+    return v.store_mealplan(inp)
 
 
 if __name__ == '__main__':

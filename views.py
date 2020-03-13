@@ -1,6 +1,7 @@
 from connection  import  *
 from fatsecret import *
 import json
+from bson.objectid import ObjectId
 fs = Fatsecret(consumer_key, consumer_secret)
 
 '''Returns a list of 20 search items corresponding to  name. If page is set to 0 it returns first 20 results , i.e: 1-20, and if it is set
@@ -80,24 +81,55 @@ def fetch_heartrate(data):
     return json.dumps(result)
 
 
+def show_mealplan():
+    return custom_food.find()
 
-def store_mealplan(data):
-    insert = { "Brand" : data["Brand"],
-               "Brand-Type": data["Brand-Type"],
-               "Prod-name": data["Prod-name"],
+
+def get_mealplan(oid):
+    return custom_food.find({"_id": ObjectId(oid)})
+
+
+
+
+def update_mealplan(data):
+    res = custom_food.update({"_id": ObjectId(data['_id'])},{ "Brand" : data["Brand"],
+               "Brand_Type": data["Brand_Type"],
+               "Prod_name": data["Prod_name"],
                "Calories": data["Calories"],
                "Proteins": data["Proteins"],
-               "Fats":{ "Total-fat": data["Fats"]["Total-fat"],"Saturated-fat": data["Fats"]["Saturated-fat"],
-                         "Monounsaturated-fat": data["Fats"]["Monounsaturated-fat"],
-                         "Polyunsaturated-fat": data["Fats"]["Polyunsaturated-fat"]
+               "Fats":{ "Total_fat": data["Fats"]["Total_fat"],"Saturated_fat": data["Fats"]["Saturated_fat"],
+                         "Monounsaturated_fat": data["Fats"]["Monounsaturated_fat"],
+                         "Polyunsaturated_fat": data["Fats"]["Polyunsaturated_fat"]
                         },
-               "Carbohydrates": {"Total-carbs" : data["Carbohydrates"]["Total-carbs"],
-                     "Sugar":data["Carbohydrates"]["Sugar"]},
+               "Carbohydrates": {"Total_carbs" : data["Carbohydrates"]["Total_carbs"],
+               "Sugar":data["Carbohydrates"]["Sugar"]},
                "Fibers": data["Fibers"],
                "Energy" : data["Energy"],
                "Sodium": data["Sodium"],
                "Cholesterol": data["Cholesterol"],
-               "Potassium": data["Potassium"]}
+               "Potassium": data["Potassium"],
+                "Prod_img":data["prod_img"]})
+    return res
+
+
+def store_mealplan(data):
+    insert = { "Brand" : data["Brand"],
+               "Brand_Type": data["Brand_Type"],
+               "Prod_name": data["Prod_name"],
+               "Calories": data["Calories"],
+               "Proteins": data["Proteins"],
+               "Fats":{ "Total_fat": data["Fats"]["Total_fat"],"Saturated_fat": data["Fats"]["Saturated_fat"],
+                         "Monounsaturated_fat": data["Fats"]["Monounsaturated_fat"],
+                         "Polyunsaturated_fat": data["Fats"]["Polyunsaturated_fat"]
+                        },
+               "Carbohydrates": {"Total_carbs" : data["Carbohydrates"]["Total_carbs"],
+               "Sugar":data["Carbohydrates"]["Sugar"]},
+               "Fibers": data["Fibers"],
+               "Energy" : data["Energy"],
+               "Sodium": data["Sodium"],
+               "Cholesterol": data["Cholesterol"],
+               "Potassium": data["Potassium"],
+               "Prod_img": data["Prod_img"]}
     print(insert)
     try:
         # insert into new collection
@@ -111,3 +143,24 @@ def store_mealplan(data):
 
 def store_insights(data):
     return "hello"
+
+def custom_json(data):
+   imp = {"Brand": data["brand1"],
+     "Brand_Type": data["brand_type1"],
+     "Prod_name": data["product_name1"],
+     "Calories": data["calories1"],
+     "Proteins": data["proteins1"],
+     "Fats": {"Total_fat": data["total_fat1"], "Saturated_fat": data["saturated1"],
+              "Monounsaturated_fat": data["monosaturated1"],
+              "Polyunsaturated_fat": data["polysaturated1"]
+              },
+     "Carbohydrates": {"Total_carbs": data["total_carbs1"],
+                       "Sugar": data["sugar1"]},
+     "Fibers": data["fibers1"],
+     "Energy": data["energy1"],
+     "Sodium": data["sodium1"],
+     "Cholesterol": data["cholesterol1"],
+     "Potassium": data["potassium1"],
+     "Prod_img": data["prod_img"]}
+
+   return imp
