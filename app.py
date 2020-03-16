@@ -97,7 +97,8 @@ def crm_1():
     data = json.loads(request.data)
 
     response = list(v.get_mealplan(data["id"]))
-    del response[0]["_id"]
+    response[0]["_id"] = str(response[0]["_id"])
+
     response = json.dumps(response)
     return response
 
@@ -109,6 +110,23 @@ def storemealplan():
     print(inp)
 
     return v.store_mealplan(inp)
+
+@app.route('/delmealplan', methods= [ 'POST'])
+def delmealplan():
+    data = json.loads(request.data)
+
+    response = list(v.delete_mealplan(data["id"]))
+    print(response)
+    return 'ok'
+
+@app.route('/updatemealplan', methods= [ 'POST'])
+def updatemealplan():
+    data = request.form.to_dict()
+
+    inp = v.custom_json(data)
+    print(inp)
+
+    return v.update_mealplan(data['_id'], inp)
 
 
 if __name__ == '__main__':

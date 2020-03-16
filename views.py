@@ -88,28 +88,21 @@ def show_mealplan():
 def get_mealplan(oid):
     return custom_food.find({"_id": ObjectId(oid)})
 
+def delete_mealplan(oid):
+    return  custom_food.remove({"_id": ObjectId(oid)})
 
 
+def update_mealplan(oid, data):
+    try:
+        # insert into new collection
+        custom_food.update({"_id": ObjectId(oid)}, data)
+        x = {"message":"Successfully Updated Data"}
+    except err.DuplicateKeyError:
+        # skip document because it already exists in new collection
+        print(err.DuplicateKeyError)
+        x = {"message":"Failed"}
+    return json.dumps(x)
 
-def update_mealplan(data):
-    res = custom_food.update({"_id": ObjectId(data['_id'])},{ "Brand" : data["Brand"],
-               "Brand_Type": data["Brand_Type"],
-               "Prod_name": data["Prod_name"],
-               "Calories": data["Calories"],
-               "Proteins": data["Proteins"],
-               "Fats":{ "Total_fat": data["Fats"]["Total_fat"],"Saturated_fat": data["Fats"]["Saturated_fat"],
-                         "Monounsaturated_fat": data["Fats"]["Monounsaturated_fat"],
-                         "Polyunsaturated_fat": data["Fats"]["Polyunsaturated_fat"]
-                        },
-               "Carbohydrates": {"Total_carbs" : data["Carbohydrates"]["Total_carbs"],
-               "Sugar":data["Carbohydrates"]["Sugar"]},
-               "Fibers": data["Fibers"],
-               "Energy" : data["Energy"],
-               "Sodium": data["Sodium"],
-               "Cholesterol": data["Cholesterol"],
-               "Potassium": data["Potassium"],
-                "Prod_img":data["prod_img"]})
-    return res
 
 
 def store_mealplan(data):
