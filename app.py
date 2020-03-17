@@ -1,13 +1,20 @@
-from flask import Flask, request,render_template
+from io import BytesIO
+from flask import Flask, request, render_template, send_from_directory, Response,abort
 from bson.objectid import ObjectId
+from PIL import Image
 from connection  import  *
 import json
 import views as v
 import sys
+import uuid
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = "UPLOAD_FOLDER"
 
 
 app = Flask(__name__)
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
 @app.route('/foodsearch', methods= ['POST'])
@@ -105,16 +112,31 @@ def crm_1():
 @app.route('/storemealplan', methods= [ 'POST'])
 def storemealplan():
     data = request.form.to_dict()
+    file = request.files['prod_img']
+    if file.filename == '':
+        print('No selected file')
+    if file and v.allowed_file(file.filename):
+        unique_filename = str(uuid.uuid4())
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        file.filename = unique_filename +'.'+ext
+
+        print(ext)
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    data["prod_img"] = file.filename
+    print(data)
 
     inp = v.custom_json(data)
-    print(inp)
-
+    # print(inp)
+    #
     return v.store_mealplan(inp)
 
 @app.route('/delmealplan', methods= [ 'POST'])
 def delmealplan():
     data = json.loads(request.data)
-
+    x = list(v.get_mealplan(data["id"]))
+    filename = secure_filename(x[0]['Prod_img'])
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'],filename))
     response = list(v.delete_mealplan(data["id"]))
     print(response)
     return 'ok'
@@ -122,11 +144,42 @@ def delmealplan():
 @app.route('/updatemealplan', methods= [ 'POST'])
 def updatemealplan():
     data = request.form.to_dict()
+    if request.files['prod_img']:
+        file = request.files['prod_img']
+        if file and v.allowed_file(file.filename):
+            unique_filename = str(uuid.uuid4())
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            file.filename = unique_filename + '.' + ext
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            data["prod_img"] = file.filename
+            inp = v.custom_json(data)
+            return v.update_mealplan(data['_id'], inp)
+    else:
+            x = list( v.get_mealplan(data['_id']))
+            data['prod_img'] =x[0]["Prod_img"]
+            inp = v.custom_json(data)
+            return v.update_mealplan(data['_id'], inp)
 
-    inp = v.custom_json(data)
-    print(inp)
+@app.route('/<path:filename>')
+def image(filename):
+    try:
+        w = int(request.args['w'])
+        h = int(request.args['h'])
+    except (KeyError, ValueError):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-    return v.update_mealplan(data['_id'], inp)
+    try:
+        im = Image.open(filename)
+        im.thumbnail((w, h), Image.ANTIALIAS)
+        io = BytesIO()
+        im.save(io, format='JPEG')
+        return Response(io.getvalue(), mimetype='image/jpeg')
+
+    except IOError:
+        abort(404)
+
+    return send_from_directory('.', filename)
 
 
 if __name__ == '__main__':

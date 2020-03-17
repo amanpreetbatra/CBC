@@ -319,7 +319,7 @@ $(document).ready(function(){
                             <a href="#editEmployeeModal"  onclick="get_fooddetails('{{ d._id }}')" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
                             <a href="#deleteEmployeeModal" onclick="assign_oid('{{ d._id }}')" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
                         </td>
-                        <td></td>
+                        <td><img height="100" width="100" src="{{ d.Prod_img }}"></td>
                         <td>{{ d.Brand }}</td>
 						<td>{{ d.Brand_Type}}</td>
                         <td>{{ d.Prod_name }}</td>
@@ -346,18 +346,18 @@ $(document).ready(function(){
                 </tbody>
             </table>
             </div>
-			<div class="clearfix">
-                <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>
-                <ul class="pagination">
-                    <li class="page-item disabled"><a href="#">Previous</a></li>
-                    <li class="page-item"><a href="#" class="page-link">1</a></li>
-                    <li class="page-item"><a href="#" class="page-link">2</a></li>
-                    <li class="page-item active"><a href="#" class="page-link">3</a></li>
-                    <li class="page-item"><a href="#" class="page-link">4</a></li>
-                    <li class="page-item"><a href="#" class="page-link">5</a></li>
-                    <li class="page-item"><a href="#" class="page-link">Next</a></li>
-                </ul>
-            </div>
+{#			<div class="clearfix">#}
+{#                <div class="hint-text">Showing <b>5</b> out of <b>25</b> entries</div>#}
+{#                <ul class="pagination">#}
+{#                    <li class="page-item disabled"><a href="#">Previous</a></li>#}
+{#                    <li class="page-item"><a href="#" class="page-link">1</a></li>#}
+{#                    <li class="page-item"><a href="#" class="page-link">2</a></li>#}
+{#                    <li class="page-item active"><a href="#" class="page-link">3</a></li>#}
+{#                    <li class="page-item"><a href="#" class="page-link">4</a></li>#}
+{#                    <li class="page-item"><a href="#" class="page-link">5</a></li>#}
+{#                    <li class="page-item"><a href="#" class="page-link">Next</a></li>#}
+{#                </ul>#}
+{#            </div>#}
         </div>
     </div>
 	<!-- Edit Modal HTML -->
@@ -372,7 +372,7 @@ $(document).ready(function(){
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Product Image</label>
-							<input  type="text" class="form-control" name="prod_img">
+							<input  type="file" class="form-control" name="prod_img">
 						</div>
 						<div class="form-group">
 							<label>Brand</label>
@@ -460,7 +460,8 @@ $(document).ready(function(){
 					<div class="modal-body">
 						<div class="form-group">
 							<label>Product Image</label>
-							<input  type="text" class="form-control"  id = "prod_img" name = "prod_img" >
+							<input  type="file" class="form-control" accept="image/*" id = "prod_img" name = "prod_img" >
+                            <img id="setimage" src="" height="200" width="300">
 						</div>
 						<div class="form-group">
 							<label>Brand</label>
@@ -543,7 +544,7 @@ $(document).ready(function(){
 			<div class="modal-content">
 				<form>
 					<div class="modal-header">						
-						<h4 class="modal-title">Delete Employee</h4>
+						<h4 class="modal-title">Delete Food</h4>
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 					</div>
 					<div class="modal-body">					
@@ -589,7 +590,11 @@ $(document).ready(function(){
               $("#sodium").val(res["Sodium"]);
                $("#cholesterol").val(res["Cholesterol"]);
                 $("#potassium").val(res["Potassium"]);
-                $("#_id").val(res["_id"])
+                $("#_id").val(res["_id"]);
+                console.log(res);
+                 $("#setimage").attr("src",res['Prod_img'] );
+
+
                  },
             error: function (jqXHR, textStatus, errorThrown)
             {
@@ -629,8 +634,9 @@ $("#idForm").submit(function(e) {
     e.preventDefault(); // avoid to execute the actual submit of the form.
 
     var form = $('#idForm')[0];
-
     var data = new FormData(form);
+    console.log(data);
+
     $.ajax({
            type: "POST",
            url: "{{ url_for('storemealplan')}}",
