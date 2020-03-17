@@ -16,6 +16,11 @@ UPLOAD_FOLDER = "UPLOAD_FOLDER"
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+
+@app.route("/")
+def hello():
+    return "<h1 style='color:blue'>Welcome to CBC</h1>"
+
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
 @app.route('/foodsearch', methods= ['POST'])
 def food_s():
@@ -183,4 +188,4 @@ def image(filename):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host = '0.0.0.0')
