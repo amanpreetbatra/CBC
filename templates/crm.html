@@ -262,6 +262,16 @@ $(document).ready(function(){
 </script>
 </head>
 <body>
+ {% with messages = get_flashed_messages() %}
+         {% if messages %}
+               <script>
+      var messages = {{ messages | safe }};
+      for (var i=0; i<messages.length; i++) {
+        alert(messages[i]);
+      }
+    </script>
+         {% endif %}
+      {% endwith %}
     <div class="container" >
         <div class="table-wrapper">
             <div class="table-title">
@@ -621,7 +631,11 @@ $(document).ready(function(){
             success: function(data)
             {
             location.reload();
-                 }
+                 },
+             error: function (data) {
+              location.reload();
+
+        }
         });
    return false;
 
@@ -644,12 +658,15 @@ $("#idForm").submit(function(e) {
            contentType: false,
            processData: false,
            dataType : 'json',
-           success: function(data)
-           {
+           success: function(data) {
 
                alert(data["message"]);
                location.reload();
-           }
+           },
+           error: function (data) {
+               alert(data);
+
+        }
          });
 
 
@@ -676,7 +693,11 @@ $("#idForm").submit(function(e) {
 
                alert(data["message"]);
                location.reload();
-           }
+           },
+        error: function (data) {
+               alert(data);
+
+        }
          });
 
 

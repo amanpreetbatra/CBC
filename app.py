@@ -1,7 +1,9 @@
 from io import BytesIO
-from flask import Flask, request, render_template, send_from_directory, Response,abort
+from flask import Flask, request, render_template, send_from_directory, Response, abort, session, redirect, url_for
 from bson.objectid import ObjectId
 from PIL import Image
+from flask_login import LoginManager
+from config import Config
 from connection  import  *
 import json
 import views as v
@@ -9,17 +11,64 @@ import sys
 import uuid
 import os
 from werkzeug.utils import secure_filename
+import bcrypt
+from authorise import *
+
+#from forms import LoginForm
+
+
 
 UPLOAD_FOLDER = "UPLOAD_FOLDER"
-
+#login_manager = LoginManager()
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config.from_object(Config)
+#login_manager.init_app(app)
+
+# @login_manager.user_loader
+# def load_user(user_id):
+#     return User.get(user_id)
 
 
-@app.route("/")
-def hello():
-    return "<h1 style='color:blue'>Welcome to CBC</h1>"
+@app.route('/')
+def index():
+    if 'username' in session:
+        return redirect(url_for('crm'))
+
+    return render_template('index.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+
+    login_user = users.find_one({'name': request.form['username']})
+
+    if login_user:
+        if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
+            session['username'] = request.form['username']
+            return redirect(url_for('crm'))
+
+    return 'Invalid username/password combination'
+
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    if request.method == 'POST':
+        existing_user = users.find_one({'name': request.form['username']})
+
+        if existing_user is None:
+            hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
+            users.insert({'name': request.form['username'], 'password': hashpass,'isadmin':'false'})
+            session['username'] = request.form['username']
+            return redirect(url_for('index'))
+
+        return 'That username already exists!'
+
+    return render_template('register.html')
+
+
+
+
 
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
 @app.route('/foodsearch', methods= ['POST'])
@@ -99,12 +148,26 @@ def insert_hr():
             return json.dumps(message)
 
 
+
+# @app.route('/login',methods=['GET', 'POST'])
+# def login():
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         flash('Login requested for user {}, remember_me={}'.format(
+#             form.username.data, form.remember_me.data))
+#         return redirect('/crm')
+#     return render_template('login.html', form=form)
+
+
+
 @app.route('/crm', methods= [ 'GET'])
+@authorize
 def crm():
     data = list(v.show_mealplan())
     return render_template("crm.html", data=data)
 
 @app.route('/getmealplan', methods= [ 'POST'])
+@authorize
 def crm_1():
     data = json.loads(request.data)
 
@@ -115,6 +178,7 @@ def crm_1():
     return response
 
 @app.route('/storemealplan', methods= [ 'POST'])
+@authorize
 def storemealplan():
     data = request.form.to_dict()
     file = request.files['prod_img']
@@ -137,6 +201,8 @@ def storemealplan():
     return v.store_mealplan(inp)
 
 @app.route('/delmealplan', methods= [ 'POST'])
+@authorize
+@isadmin
 def delmealplan():
     data = json.loads(request.data)
     x = list(v.get_mealplan(data["id"]))
@@ -147,6 +213,7 @@ def delmealplan():
     return 'ok'
 
 @app.route('/updatemealplan', methods= [ 'POST'])
+@authorize
 def updatemealplan():
     data = request.form.to_dict()
     if request.files['prod_img']:
@@ -167,6 +234,7 @@ def updatemealplan():
             return v.update_mealplan(data['_id'], inp)
 
 @app.route('/<path:filename>')
+@authorize
 def image(filename):
     try:
         w = int(request.args['w'])

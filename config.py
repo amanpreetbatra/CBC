@@ -1,1 +1,3 @@
-DEBUG = True # Turns on debugging features in Flask
+class Config(object):
+    SECRET_KEY = '/*d0POn%%9/A_!u'
+    UPLOAD_FOLDER ='UPLOAD_FOLDER'
