@@ -5,8 +5,10 @@ from connection import users
 def authorize(f):
     @wraps(f)
     def decorated_function(*args, **kws):
+            u = users.find_one({'name': session['username']})
             if 'username' in session:
-                return f( *args, **kws)
+                if u["authorised"] == "true":
+                    return f( *args, **kws)
             else:
                 return redirect(url_for('index'))
     return decorated_function
