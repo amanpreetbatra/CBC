@@ -8,7 +8,6 @@ def authorize(f):
             if 'username' in session:
                 return f( *args, **kws)
             else:
-                flash("u need to login")
                 return redirect(url_for('index'))
     return decorated_function
 

@@ -37,9 +37,10 @@ def login():
     login_user = users.find_one({'name': request.form['username']})
 
     if login_user:
-        if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
-            session['username'] = request.form['username']
-            return redirect(url_for('crm',_external=True))
+        if login_user["authorised"]=="true":
+            if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
+                session['username'] = request.form['username']
+                return redirect(url_for('crm',_external=True))
 
     return 'Invalid username/password combination'
 
@@ -51,7 +52,7 @@ def register():
 
         if existing_user is None:
             hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
-            users.insert({'name': request.form['username'], 'password': hashpass,'isadmin':'false'})
+            users.insert({'name': request.form['username'], 'password': hashpass,'isadmin':'false','authorised':'false'})
             session['username'] = request.form['username']
             return redirect(url_for('index'))
 
