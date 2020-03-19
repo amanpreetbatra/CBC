@@ -2,7 +2,6 @@ from io import BytesIO
 from flask import Flask, request, render_template, send_from_directory, Response, abort, session, redirect, url_for
 from bson.objectid import ObjectId
 from PIL import Image
-from flask_login import LoginManager
 from config import Config
 from connection  import  *
 import json
@@ -33,7 +32,7 @@ app.config.from_object(Config)
 @app.route('/')
 def index():
     if 'username' in session:
-        return redirect(url_for('crm'))
+        return render_template(url_for('crm'))
 
     return render_template('index.html')
 
@@ -256,4 +255,4 @@ def image(filename):
 
 
 if __name__ == '__main__':
-    app.run(host = '0.0.0.0')
+    app.run()
