@@ -13,26 +13,20 @@ from werkzeug.utils import secure_filename
 import bcrypt
 from authorise import *
 
-#from forms import LoginForm
 
 
 
 UPLOAD_FOLDER = "UPLOAD_FOLDER"
-#login_manager = LoginManager()
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
-#login_manager.init_app(app)
-
-# @login_manager.user_loader
-# def load_user(user_id):
-#     return User.get(user_id)
 
 
 @app.route('/')
 def index():
     if 'username' in session:
-        return render_template(url_for('crm', _external=True))
+        return redirect(url_for('crm',_external=True))
 
     return render_template('index.html')
 
@@ -255,4 +249,4 @@ def image(filename):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host = '0.0.0.0')
