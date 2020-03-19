@@ -53,9 +53,7 @@ def register():
         if existing_user is None:
             hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
             users.insert({'name': request.form['username'], 'password': hashpass,'isadmin':'false','authorised':'false'})
-            session['username'] = request.form['username']
             return redirect(url_for('index'))
-
         return 'That username already exists!'
 
     return render_template('register.html')
