@@ -32,7 +32,7 @@ app.config.from_object(Config)
 @app.route('/')
 def index():
     if 'username' in session:
-        return render_template(url_for('crm'))
+        return render_template(url_for('crm', _external=True))
 
     return render_template('index.html')
 
@@ -45,7 +45,7 @@ def login():
     if login_user:
         if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
             session['username'] = request.form['username']
-            return redirect(url_for('crm'))
+            return redirect(url_for('crm',_external=True))
 
     return 'Invalid username/password combination'
 
