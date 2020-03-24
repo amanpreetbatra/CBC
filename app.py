@@ -1,5 +1,5 @@
 from io import BytesIO
-from flask import Flask, request, render_template, send_from_directory, Response, abort, session, redirect, url_for
+from flask import Flask, request, render_template, send_from_directory, Response
 from bson.objectid import ObjectId
 from PIL import Image
 from config import Config
@@ -45,6 +45,13 @@ def login():
     return 'Invalid username/password combination'
 
 
+
+@app.route('/logout')
+def logout():
+   # remove the username from the session if it is there
+   session.pop('username', None)
+   return redirect(url_for('index'))
+
 @app.route('/register', methods=['POST', 'GET'])
 def register():
     if request.method == 'POST':
@@ -64,6 +71,7 @@ def register():
 
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
 @app.route('/foodsearch', methods= ['POST'])
+@token_required
 def food_s():
     data = json.loads(request.data)
     try:
@@ -77,6 +85,7 @@ def food_s():
 
 '''API TO GET NUTRITIONAL VALUES OF A PARTICULAR FOOD ID'''
 @app.route('/get_nut', methods= ['POST'])
+@token_required
 def food_g():
     data = json.loads(request.data)
     try:
@@ -89,18 +98,21 @@ def food_g():
 
 '''API TO SEND HEARTRATE TO FRONTEND IF IT IS AVAILABLE IN BACKEND'''
 @app.route('/op_hr', methods= ['POST'])
+@token_required
 def fetch_heart():
     data = json.loads(request.data)
     return v.fetch_heartrate(data)
 
 
 @app.route('/customfoodins', methods= ['POST'])
+@token_required
 def custom_meal():
     data = json.loads(request.data)
     return v.store_mealplan(data)
 
 
 @app.route('/inp_insight', methods= ['POST'])
+@token_required
 def insights():
     data = json.loads(request.data)
     return v.store_insights(data)
@@ -108,6 +120,7 @@ def insights():
 
 
 @app.route('/in_hr', methods= [ 'POST'])
+@token_required
 def insert_hr():
     if request.method == 'POST':
         data = json.loads(request.data)
@@ -249,3 +262,4 @@ def image(filename):
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0')
+
