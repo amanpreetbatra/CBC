@@ -13,12 +13,15 @@ mongo = pymongo.MongoClient('mongodb+srv://naman:naman1234@cluster0-t91dz.mongod
 '''MongoDb Database and collections'''
 db = pymongo.database.Database(mongo, 'VITRADA')
 db1 = pymongo.database.Database(mongo, 'CALINDA')
-login = pymongo.database.Database(mongo, 'Login')
+db2 = pymongo.database.Database(mongo, 'CALINFO')
+login_db= pymongo.database.Database(mongo, 'Login')
 col = pymongo.collection.Collection(db, 'cbcavg')
 food = pymongo.collection.Collection(db1, 'CIfood')
 nutri = pymongo.collection.Collection(db1, 'CBnutri')
 custom_food =pymongo.collection.Collection(db1, 'CICustomfood')
-users =pymongo.collection.Collection(login, 'user')
+users =pymongo.collection.Collection(login_db, 'user')
+weight = pymongo.collection.Collection(db2, 'Cinsight')
+
 
 custom_food.create_index(
     [("Product-name", pymongo.DESCENDING), ("Brand", pymongo.ASCENDING),("Brand-Type", pymongo.ASCENDING)], unique=True)

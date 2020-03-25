@@ -1,75 +1,23 @@
 from io import BytesIO
-from flask import Flask, request, render_template, send_from_directory, Response
-from bson.objectid import ObjectId
+from flask import Flask, render_template, send_from_directory, Response
 from PIL import Image
 from config import Config
-from connection  import  *
 import json
 import views as v
 import sys
 import uuid
 import os
 from werkzeug.utils import secure_filename
-import bcrypt
 from authorise import *
-
-
-
-
-UPLOAD_FOLDER = "UPLOAD_FOLDER"
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 
-@app.route('/')
-def index():
-    if 'username' in session:
-        return redirect(url_for('crm',_external=True))
-
-    return render_template('index.html')
-
-
-@app.route('/login', methods=['POST'])
-def login():
-
-    login_user = users.find_one({'name': request.form['username']})
-
-    if login_user:
-        if login_user["authorised"]=="true":
-            if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
-                session['username'] = request.form['username']
-                return redirect(url_for('crm',_external=True))
-
-    return 'Invalid username/password combination'
-
-
-
-@app.route('/logout')
-def logout():
-   # remove the username from the session if it is there
-   session.pop('username', None)
-   return redirect(url_for('index'))
-
-@app.route('/register', methods=['POST', 'GET'])
-def register():
-    if request.method == 'POST':
-        existing_user = users.find_one({'name': request.form['username']})
-
-        if existing_user is None:
-            hashpass = bcrypt.hashpw(request.form['pass'].encode('utf-8'), bcrypt.gensalt())
-            users.insert({'name': request.form['username'], 'password': hashpass,'isadmin':'false','authorised':'false'})
-            return redirect(url_for('index'))
-        return 'That username already exists!'
-
-    return render_template('register.html')
-
-
-
-
-
 ''' THIS IS THE SEARCH API WHICH TAKES TWO INPUTS 1. Search String 2. Page Number'''
+
+
 @app.route('/foodsearch', methods= ['POST'])
 @token_required
 def food_s():
@@ -84,6 +32,8 @@ def food_s():
 
 
 '''API TO GET NUTRITIONAL VALUES OF A PARTICULAR FOOD ID'''
+
+
 @app.route('/get_nut', methods= ['POST'])
 @token_required
 def food_g():
@@ -97,6 +47,8 @@ def food_g():
         return json.dumps(dat)
 
 '''API TO SEND HEARTRATE TO FRONTEND IF IT IS AVAILABLE IN BACKEND'''
+
+
 @app.route('/op_hr', methods= ['POST'])
 @token_required
 def fetch_heart():
@@ -124,45 +76,45 @@ def insights():
 def insert_hr():
     if request.method == 'POST':
         data = json.loads(request.data)
-        x = list(col.find({"EXERCISE": data["EXERCISE"],
-            "GENDER": data["GENDER"],
-            "LEVEL": data["LEVEL"],
-            "REPS":data["REPS"],
-            "AGE": data["AGE"],
-            "lift WEIGHT": data["lift WEIGHT"]
-            }))
-        print(x[0])
-        '''object id varible'''
-        oid = x[0]['_id']
-        if int(x[0]['FLAG']) == 0:
-            user = col.update({"_id": ObjectId(oid)}, {
-                "EXERCISE": data["EXERCISE"],
-                "GENDER": data["GENDER"],
-                "LEVEL": data["LEVEL"],
-                "REPS":data["REPS"],
-                "AGE": data["AGE"],
-                "lift WEIGHT": data["lift WEIGHT"],
-                "HEARTRATE": data["HEARTRATE"],
-                "FLAG" : "1"
-                })
-            message ={"message": "DATABASE UPDATED "}
-            return json.dumps(message)
+        return v.insert_hr(data)
 
-        else:
-            message = { "message": "NOT REQUIRED! ALREADY FILLED" }
-            return json.dumps(message)
+@app.route('/insert_weight', methods= [ 'POST'])
+#@token_required
+def insert_weight():
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        return v.insert_weight(data)
 
 
 
-# @app.route('/login',methods=['GET', 'POST'])
-# def login():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         flash('Login requested for user {}, remember_me={}'.format(
-#             form.username.data, form.remember_me.data))
-#         return redirect('/crm')
-#     return render_template('login.html', form=form)
+''' ALL THE ENDPOINTS BELOW THIS POINT ARE FOR CRM OF STORING CUSTOM FOOD DATA N THE DATABASE'''
 
+
+@app.route('/')
+def index():
+    if 'username' in session:
+        return redirect(url_for('crm',_external=True))
+    return render_template('index.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    return v.login()
+
+
+
+@app.route('/logout')
+def logout():
+   x = v.logout()
+   return x
+
+
+@app.route('/register', methods=['POST', 'GET'])
+def register():
+    if request.method == 'POST':
+        data = request.form
+        return v.register(data)
+    return render_template('register.html')
 
 
 @app.route('/crm', methods= [ 'GET'])
@@ -170,6 +122,7 @@ def insert_hr():
 def crm():
     data = list(v.show_mealplan())
     return render_template("crm.html", data=data)
+
 
 @app.route('/getmealplan', methods= [ 'POST'])
 @authorize
@@ -181,6 +134,7 @@ def crm_1():
 
     response = json.dumps(response)
     return response
+
 
 @app.route('/storemealplan', methods= [ 'POST'])
 @authorize
@@ -199,10 +153,7 @@ def storemealplan():
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     data["prod_img"] = file.filename
     print(data)
-
     inp = v.custom_json(data)
-    # print(inp)
-    #
     return v.store_mealplan(inp)
 
 @app.route('/delmealplan', methods= [ 'POST'])
