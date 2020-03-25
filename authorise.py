@@ -28,6 +28,7 @@ def isadmin(f):
 
     return decorated_function
 
+
 def token_required(f):
     @wraps(f)
     def decorated(*args,**kwargs):
