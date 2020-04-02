@@ -79,12 +79,22 @@ def insert_hr():
         return v.insert_hr(data)
 
 @app.route('/insert_weight', methods= [ 'POST'])
-#@token_required
+@token_required
 def insert_weight():
     if request.method == 'POST':
-        data = json.loads(request.data)
-        return v.insert_weight(data)
+        try:
+            data = json.loads(request.data)
+            return v.insert_weight(data)
+        except:
+            e = sys.exc_info()[0:2]
+            dat = {"message": str(e)}
 
+            return json.dumps(dat),403
+
+@app.route('/ret_weight', methods=["POST"])
+def ret_weight():
+    data = json.loads(request.data)
+    return v.return_weight(data)
 
 
 ''' ALL THE ENDPOINTS BELOW THIS POINT ARE FOR CRM OF STORING CUSTOM FOOD DATA N THE DATABASE'''
@@ -209,6 +219,8 @@ def image(filename):
         abort(404)
 
     return send_from_directory('.', filename)
+
+
 
 
 if __name__ == '__main__':

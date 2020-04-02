@@ -265,3 +265,12 @@ def insert_weight(data):
         inse = weight.update({"_id": ObjectId(query["_id"])}, { "$set": { "weights": u } })
     inse = str(inse)
     return jsonify({"message":"Successfully Updated"})
+
+
+def return_weight(data):
+    my_query = {"Phone": data["Phone"]}
+    find_query = weight.find_one(my_query)
+    if find_query is  None:
+        return jsonify({"message":"No Data"}),403
+    else:
+        return jsonify({"Name": find_query["name"],"Phone": find_query["Phone"], "weights" : find_query["weights"][-30:]})
