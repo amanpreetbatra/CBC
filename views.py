@@ -274,3 +274,28 @@ def return_weight(data):
         return jsonify({"message":"No Data"}),403
     else:
         return jsonify({"Name": find_query["name"],"Phone": find_query["Phone"], "weights" : find_query["weights"][-30:]})
+
+
+
+
+def show_nutrition():
+    return nutri.find()
+
+def get_nutrition(oid):
+    return nutri.find({"_id": ObjectId(oid)})
+
+
+def update_nutriplan(oid, data):
+    try:
+        del data["_id"]
+        # insert into new collection
+        nutri.update({"_id": ObjectId(oid)}, data)
+        x = {"message": "Successfully Updated Data"}
+    except err.DuplicateKeyError:
+        # skip document because it already exists in new collection
+        print(err.DuplicateKeyError)
+        x = {"message": "Failed"}
+    return json.dumps(x)
+
+def delete_nutriplan(oid):
+    return nutri.remove({"_id": ObjectId(oid)})

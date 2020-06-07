@@ -96,6 +96,64 @@ def ret_weight():
     data = json.loads(request.data)
     return v.return_weight(data)
 
+''' FOR ADDING IMAGES IN NUTRITION COLLECTION'''
+
+
+@app.route('/image_nutri', methods= [ 'GET'])
+@authorize
+def addimages():
+    data = list(v.show_nutrition())
+    return render_template("addimages.html", data=data)
+
+@app.route('/getnutriplan', methods= [ 'POST'])
+@authorize
+def getnutriplan():
+    data = json.loads(request.data)
+
+    response = list(v.get_nutrition(data["id"]))
+    response[0]["_id"] = str(response[0]["_id"])
+
+    response = json.dumps(response)
+    return response
+
+@app.route('/updatenutritionplan', methods= [ 'POST'])
+@authorize
+def updatenutriplan():
+    data = request.form.to_dict()
+    data = json.loads(data["data"])[0]
+    if request.files['prod_img']:
+        file = request.files['prod_img']
+        if file and v.allowed_file(file.filename):
+            unique_filename = str(uuid.uuid4())
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            file.filename = unique_filename + '.' + ext
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            data["prod_img"] = file.filename
+            return v.update_nutriplan(data['_id'], data)
+    else:
+            x = list( v.get_nutrition(data['_id']))
+            if "prod_img" in x[0]:
+                data['prod_img'] =x[0]["prod_img"]
+            else:
+                data['prod_img'] = ""
+                print(data)
+            return v.update_nutriplan(data['_id'], data)
+
+
+@app.route('/delnutriplan', methods= [ 'POST'])
+@authorize
+@isadmin
+def delnutriplan():
+    data = json.loads(request.data)
+    x = list(v.get_nutrition(data["id"]))
+    filename = secure_filename(x[0]['prod_img'])
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+    response = list(v.delete_nutriplan(data["id"]))
+    print(response)
+    return 'ok'
+
+
 
 ''' ALL THE ENDPOINTS BELOW THIS POINT ARE FOR CRM OF STORING CUSTOM FOOD DATA N THE DATABASE'''
 
@@ -132,7 +190,6 @@ def register():
 def crm():
     data = list(v.show_mealplan())
     return render_template("crm.html", data=data)
-
 
 @app.route('/getmealplan', methods= [ 'POST'])
 @authorize
