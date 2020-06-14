@@ -116,6 +116,24 @@ def getnutriplan():
     response = json.dumps(response)
     return response
 
+
+@app.route('/storenutriplan', methods= [ 'POST'])
+@authorize
+def storenutriplan():
+    data = request.form.to_dict()
+    file = request.files['prod_img']
+    if file.filename == '':
+        print('No selected file')
+    if file and v.allowed_file(file.filename):
+        unique_filename = str(uuid.uuid4())
+        ext = file.filename.rsplit('.', 1)[1].lower()
+        file.filename = unique_filename +'.'+ext
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    data["prod_img"] = file.filename
+    data["food_id"] = uuid.uuid4()
+    return v.store_nutriplan(data)
+
 @app.route('/updatenutritionplan', methods= [ 'POST'])
 @authorize
 def updatenutriplan():
@@ -148,10 +166,11 @@ def delnutriplan():
     data = json.loads(request.data)
     x = list(v.get_nutrition(data["id"]))
     filename = secure_filename(x[0]['prod_img'])
-    os.remove(os.path.join(app.config['UPLOAD_FOLDER'],filename))
+    if filename != "":
+        os.remove(os.path.join(app.config['UPLOAD_FOLDER'],filename))
     response = list(v.delete_nutriplan(data["id"]))
     print(response)
-    return 'ok'
+    return str(response)
 
 
 
@@ -161,7 +180,7 @@ def delnutriplan():
 @app.route('/')
 def index():
     if 'username' in session:
-        return redirect(url_for('crm',_external=True))
+        return redirect(url_for('addimages',_external=True))
     return render_template('index.html')
 
 

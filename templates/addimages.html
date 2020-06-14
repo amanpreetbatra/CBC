@@ -281,7 +281,8 @@ $(document).ready(function(){
 					</div>
 					<div class="col-sm-6">
                         <a href="{{ url_for("logout") }}" class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>LOGOUT</span></a>
-						<a href="{{ url_for('crm')}}" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>CRM for Custom Food</span></a>
+{#						<a href="{{ url_for('crm')}}" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>CRM for Custom Food</span></a>#}
+                        <a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Food</span></a>
 {#						<a href="#deleteEmployeeModal" class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>						#}
 					</div>
                 </div>
@@ -336,7 +337,7 @@ $(document).ready(function(){
 
         </div>
     </div>
-	<!-- Edit Modal HTML -->
+	<!-- Add Modal HTML -->
 	<div id="addEmployeeModal" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -351,75 +352,51 @@ $(document).ready(function(){
 							<input  type="file" class="form-control" name="prod_img">
 						</div>
 						<div class="form-group">
-							<label>Brand</label>
-							<input name = "brand1" type="text" class="form-control" >
+							<label>Food Name</label>
+							<input name = "food_name" type="text" class="form-control" >
 						</div>
 						<div class="form-group">
-							<label>Brand Type</label>
-							<textarea class="form-control" name="brand_type1"></textarea>
-						</div>
-						<div class="form-group">
-							<label>Product Name</label>
-							<input type="text" class="form-control" name = "product_name1">
-						</div>
-                        <div class="form-group">
-							<label>Calories</label>
-							<input type="text" class="form-control" name="calories1">
-						</div>
-                        <div class="form-group">
-							<label>Proteins</label>
-							<input type="text" class="form-control" name="proteins1">
-						</div>
-                        <div class="form-group">
-							<label>Total Fats</label>
-							<input type="text" class="form-control" name="total_fat1">
-						</div>
-                        <div class="form-group">
-							<label>Saturated Fats</label>
-							<input type="text" class="form-control" name="saturated1">
-						</div>
-                        <div class="form-group">
-							<label>Monounsaturated Fats</label>
-							<input type="text" class="form-control" name="monosaturated1">
-						</div>
-                        <div class="form-group">
-							<label>Polyunsaturated Fats</label>
-							<input type="text" class="form-control" name = "polysaturated1">
-						</div>
-                        <div class="form-group">
-							<label>Total Carbs</label>
-							<input type="text" class="form-control" name="total_carbs1">
-						</div>
-                        <div class="form-group">
-							<label>Sugar</label>
-							<input type="text" class="form-control" name="sugar1">
-						</div>
-                        <div class="form-group">
-							<label>Fibers</label>
-							<input type="text" class="form-control" name = "fibers1">
-						</div>
-                        <div class="form-group">
-							<label>Energy</label>
-							<input type="text" class="form-control" name="energy1">
-						</div>
-                         <div class="form-group">
-							<label>Sodium</label>
-							<input type="text" class="form-control" name ="sodium1">
-						</div>
-                         <div class="form-group">
-							<label>Cholesterol</label>
-							<input type="text" class="form-control" name="cholesterol1">
-						</div>
-                         <div class="form-group">
-							<label>Potassium</label>
-							<input type="text" class="form-control" name="potassium1">
-						</div>
+							<label>Food Type</label>
+							<select class="form-control" id="food_type" name="food_type">
+                              <option value="Generic">Generic</option>
+                              <option value="Brand">Brand</option>
 
-					</div>
+                            </select>
+						</div>
+                        <div class="form-group">
+							<label>Serving(For Adding more than one serving, copy the text and paste it after adding a comma  at the last)  </label>
+							<textarea rows="40"  class="form-control" name="serving">
+                             [{
+                            "calcium": "",
+                            "calories": "",
+                            "carbohydrate": "",
+                            "cholesterol": "",
+                            "fat": "",
+                            "fiber": "",
+                            "iron": "",
+                            "measurement_description": "",
+                            "metric_serving_amount": "",
+                            "metric_serving_unit": "",
+                            "monounsaturated_fat": "",
+                            "number_of_units": "",
+                            "polyunsaturated_fat": "",
+                            "potassium": "",
+                            "protein": "",
+                            "saturated_fat": "",
+                            "serving_description": "",
+                            "serving_id": "",
+                            "sodium": "",
+                            "sugar": "",
+                            "vitamin_a": "",
+                            "vitamin_c": ""
+		                    }]
+                            </textarea>
+						</div>
 					<div class="modal-footer">
 						<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
 						<input type="submit" class="btn btn-success" value="Add">
 					</div>
+                    </div>
 				</form>
 			</div>
 		</div>
@@ -441,7 +418,7 @@ $(document).ready(function(){
 						</div>
 						<div class="form-group">
 							<label>DATA</label>
-							<input id = "data" type="text" name = "data" class="form-control" >
+                            <textarea id = "data" type="text" rows="30" name = "data" class="form-control" ></textarea>
 						</div>
 
                           <input type="hidden" class="hidden" id = "_id" name = "_id" value="">
@@ -544,7 +521,7 @@ $("#idForm").submit(function(e) {
 
     $.ajax({
            type: "POST",
-           url: "{{ url_for('storemealplan')}}",
+           url: "{{ url_for('storenutriplan')}}",
            data: data,
            contentType: false,
            processData: false,

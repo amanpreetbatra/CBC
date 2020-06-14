@@ -182,7 +182,7 @@ def login():
         if login_user["authorised"] == "true":
             if bcrypt.hashpw(request.form['pass'].encode('utf-8'), login_user['password']) == login_user['password']:
                 session['username'] = request.form['username']
-                return redirect(url_for('crm', _external=True))
+                return redirect(url_for('addimages', _external=True))
 
     return 'Invalid username/password combination'
 
@@ -299,3 +299,30 @@ def update_nutriplan(oid, data):
 
 def delete_nutriplan(oid):
     return nutri.remove({"_id": ObjectId(oid)})
+
+
+
+def store_nutriplan(data):
+
+
+    js = {
+    "food_id": str(data["food_id"]),
+    "food_name": data["food_name"],
+    "food_type": data["food_type"],
+    "servings": {
+                "serving": json.loads(data["serving"])
+                },
+    "prod_img": data["prod_img"]
+            }
+
+    print(js)
+    try:
+        # insert into new collection
+        nutri.insert(js)
+        x = {"message": "Successfully Inserted Data"}
+    except err.DuplicateKeyError:
+        # skip document because it already exists in new collection
+        print(err.DuplicateKeyError)
+        x = {"message": "Dublicate Entry"}
+    return json.dumps(x)
+
