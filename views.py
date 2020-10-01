@@ -4,6 +4,7 @@ import json
 from bson.objectid import ObjectId
 from flask import redirect, url_for, session, request,jsonify
 from datetime import date
+import asyncio
 
 fs = Fatsecret(consumer_key, consumer_secret)
 import bcrypt
@@ -11,7 +12,13 @@ import bcrypt
 '''Returns a list of 20 search items corresponding to  name. If page is set to 0 it returns first 20 results , i.e: 1-20, and if it is set
 to 1 the result list contain 21-40 and so on'''
 
-
+async def food1(data):
+        try:
+            # insert into new collection
+            y = food.insert(data)
+        except err.DuplicateKeyError:
+            # skip document because it already exists in new collection
+            pass
 def food_search(name, page):
     result = list(fs.foods_search(search_expression=name, page_number=page))
 
@@ -27,12 +34,13 @@ def food_search(name, page):
         x = list(food.find({"food_id": data[i]['food_id']}))
         if len(x) == 0:
             # print(data[i])
-            try:
-                # insert into new collection
-                y = food.insert(data[i])
-            except err.DuplicateKeyError:
-                # skip document because it already exists in new collection
-                continue
+            # try:
+            #     # insert into new collection
+            #     y = food.insert(data[i])
+            # except err.DuplicateKeyError:
+            #     # skip document because it already exists in new collection
+            #     continue
+            food1(data[i])
 
     for i in range(len(data)):
         if "_id" in data[i].keys():
@@ -44,17 +52,25 @@ def food_search(name, page):
 
 ''' Returns all the Nutritional values of a particular food id that is inserted'''
 
+async  def insert_nutri(response):
+    try:
+        # insert into new collection
+        nutri.insert(response)
+    except err.DuplicateKeyError:
+        # skip document because it already exists in new collection
+        print(err.DuplicateKeyError)
 
 def nutri_facts(food_id):
     response = fs.food_get(food_id)
     x = list(nutri.find({"food_id": response['food_id']}))
     if len(x) == 0:
-        try:
-            # insert into new collection
-            nutri.insert(response)
-        except err.DuplicateKeyError:
-            # skip document because it already exists in new collection
-            print(err.DuplicateKeyError)
+        # try:
+        #     # insert into new collection
+        #     nutri.insert(response)
+        # except err.DuplicateKeyError:
+        #     # skip document because it already exists in new collection
+        #     print(err.DuplicateKeyError)
+        insert_nutri(response)
     else:
         print("alredy in db")
 
