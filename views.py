@@ -9,6 +9,35 @@ import asyncio
 fs = Fatsecret(consumer_key, consumer_secret)
 import bcrypt
 
+import threading
+
+class dbclassfood(threading.Thread):
+    def __init__(self,data,name,page):
+        threading.Thread.__init__(self)
+        self.data = data
+        self.name = name
+        self.page = page
+    def run(self):
+        data = self.data
+        name = self.name
+        page = self.page
+        result = list(fs.foods_search(search_expression=name, page_number=page))
+        for i in range(len(result)):
+            data.append({
+                "food_description": result[i]["food_description"],
+                "food_id": result[i]["food_id"],
+                "food_name": result[i]["food_name"],
+                "food_type": result[i]["food_type"]
+            })
+            x = list(food.find({"food_id": data[i]['food_id']}))
+            if len(x) == 0:
+                try:
+                    # insert into new collection
+                    y = food.insert(data[i])
+                except err.DuplicateKeyError:
+                    # skip document because it already exists in new collection
+                    continue
+
 '''Returns a list of 20 search items corresponding to  name. If page is set to 0 it returns first 20 results , i.e: 1-20, and if it is set
 to 1 the result list contain 21-40 and so on'''
 
@@ -30,22 +59,21 @@ def food_search(name, page):
             "food_name": result[i]["food_name"],
             "food_type": result[i]["food_type"]
         })
-
-        x = list(food.find({"food_id": data[i]['food_id']}))
-        if len(x) == 0:
-            # print(data[i])
-            # try:
-            #     # insert into new collection
-            #     y = food.insert(data[i])
-            # except err.DuplicateKeyError:
-            #     # skip document because it already exists in new collection
-            #     continue
-            food1(data[i])
-
-    for i in range(len(data)):
         if "_id" in data[i].keys():
             del data[i]["_id"]
-    print("Final Data:", data)
+        #
+        # x = list(food.find({"food_id": data[i]['food_id']}))
+        # if len(x) == 0:
+        #     # print(data[i])
+        #     # try:
+        #     #     # insert into new collection
+        #     #     y = food.insert(data[i])
+        #     # except err.DuplicateKeyError:
+        #     #     # skip document because it already exists in new collection
+        #     #     continue
+        #     food1(data[i])
+    a = dbclassfood(data,name,food)
+    a.start()
     data = json.dumps(data)
     return data
 
@@ -61,20 +89,25 @@ async  def insert_nutri(response):
         print(err.DuplicateKeyError)
 
 def nutri_facts(food_id):
-    response = fs.food_get(food_id)
-    x = list(nutri.find({"food_id": response['food_id']}))
+
+    x = list(nutri.find({"food_id": food_id}))
+
+
     if len(x) == 0:
-        # try:
-        #     # insert into new collection
-        #     nutri.insert(response)
-        # except err.DuplicateKeyError:
-        #     # skip document because it already exists in new collection
-        #     print(err.DuplicateKeyError)
-        insert_nutri(response)
+        response = fs.food_get(food_id)
+        try:# insert into new collection
+             nutri.insert(response)
+             x = response
+        except err.DuplicateKeyError:
+             # skip document because it already exists in new collection
+             print(err.DuplicateKeyError)
+
     else:
         print("alredy in db")
+        del x[0]['_id']
+        x = json.dumps(x[0])
 
-    return response
+    return x
 
 
 def fetch_heartrate(data):
@@ -341,4 +374,28 @@ def store_nutriplan(data):
         print(err.DuplicateKeyError)
         x = {"message": "Dublicate Entry"}
     return json.dumps(x)
+
+
+def food_search1(name, page):
+
+    food.create_index([('food_name', 'text')])
+    result = list(food.find({"$text": {"$search": name}}))
+    if len(result)==0:
+        return food_search(name,page)
+    data = []
+    for i in range(len(result)):
+        data.append({
+            "food_description": result[i]["food_description"],
+            "food_id": result[i]["food_id"],
+            "food_name": result[i]["food_name"],
+            "food_type": result[i]["food_type"]
+        })
+        if "_id" in data[i].keys():
+            del data[i]["_id"]
+    a = dbclassfood(data,name,page)
+    a.start()
+    n = int(page)*20
+    data = json.dumps(data[n:n+21])
+    return data
+
 
